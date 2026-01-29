@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="logo">
+                    <i class="fas fa-music"></i>
+                    <span>TikTok</span>
+                </div>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search accounts and videos">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn-go-live" id="goLiveBtn"><i class="fas fa-video"></i> Go Live</button>
+                    <button id="globalOrientationBtn" class="btn-orientation" style="display: none;" title="Toggle orientation for all videos"><i class="fas fa-arrows-alt-v"></i></button>
+                    <button class="btn-monetize" id="monetizeBtn" style="display: none;"><i class="fas fa-coins"></i> Monetize</button>
+                    <div class="balance-display" id="balanceDisplay" style="display: none;">
+                        <i class="fas fa-coins" style="color: #ffd700;"></i>
+                        <span id="coinCount">0</span>
+                    </div>
+                    <button id="profileBtn" class="btn-profile" title="Profile"><i class="fas fa-user"></i></button>
+                    <button class="btn-upload"><i class="fas fa-upload"></i> Upload</button>
+                    <div class="user-menu" id="userMenu" style="display: none;">
+                        <div class="user-profile">
+                            <div class="profile-avatar"></div>
+                            <div class="profile-info">
+                                <p class="profile-name">John Doe</p>
+                                <p class="profile-handle">@johndoe</p>
+                            </div>
+                        </div>
+                        <div class="menu-divider"></div>
+                        <div class="menu-link" id="profileLink"><i class="fas fa-user"></i> Profile</div>
+                        <div class="menu-link" id="ownerPortalLink"><i class="fas fa-crown"></i> Creator Portal</div>
+                        <div class="menu-link" id="monetizeLink"><i class="fas fa-coins"></i> Monetization</div>
+                        <div class="menu-link" id="settingsLink"><i class="fas fa-cog"></i> Settings</div>
+                        <div class="menu-divider"></div>
+                        <div class="menu-link" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                    </div>
+                    <button class="btn-login" id="loginBtn">Login</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="main-content">
+            <!-- Left Sidebar -->
+            <div class="sidebar-left">
+                <div class="menu-item active">
+                    <i class="fas fa-home"></i>
+                    <span>For You</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Following</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Saved</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-fire"></i>
+                    <span>Explore</span>
+                </div>
+            </div>
+
+            <!-- Feed -->
+            <div class="feed">
+                <div class="feed-container">
+                    <!-- Video cards will be generated here -->
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="sidebar-right">
+                <h3>Recommended Creators</h3>
+                <div class="recommended-list">
+                    <!-- Recommended creators will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal" style="display: none;">
+        <div class="modal-content login-modal">
+            <button class="modal-close">&times;</button>
+            <div class="login-header">
+                <h2>Login to TikTok</h2>
+            </div>
+            <form id="loginForm">
+                <input type="email" placeholder="Email or username" required>
+                <input type="password" placeholder="Password" required>
+                <button type="submit" class="btn-modal-login">Login</button>
+            </form>
+            <p class="auth-link">Don't have an account? <span id="signupLink">Sign up</span></p>
+            <p class="auth-link"><span id="forgotPasswordLink">Forgot Password?</span></p>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal" id="forgotPasswordModal" style="display: none;">
+        <div class="modal-content login-modal">
+            <button class="modal-close">&times;</button>
+            <div class="login-header">
+                <h2>Reset Password</h2>
+            </div>
+            
+            <!-- Step 1: Email Form -->
+            <form id="forgotPasswordForm">
+                <p style="color: #aaa; font-size: 14px; margin-bottom: 15px;">Enter your email address and we'll send you a verification code.</p>
+                <input type="email" id="forgotEmail" placeholder="Email address" required>
+                <button type="submit" class="btn-modal-login">Send OTP</button>
+            </form>
+
+            <!-- Step 2: OTP Verification Form (hidden initially) -->
+            <div id="otpVerificationForm" style="display: none;">
+                <p style="color: #aaa; font-size: 14px; margin-bottom: 15px;">We've sent a 6-digit code to your email. Enter it below:</p>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <p id="otpEmailDisplay" style="color: #25f4ee; font-size: 14px;"></p>
+                </div>
+                <input type="text" id="otpInput" placeholder="Enter 6-digit code" maxlength="6" inputmode="numeric" required style="text-align: center; font-size: 18px; letter-spacing: 8px;">
+                <button id="verifyOtpBtn" class="btn-modal-login" style="margin-top: 15px;">Verify Code</button>
+                <p style="text-align: center; margin-top: 15px; color: #aaa; font-size: 13px;">
+                    Didn't receive code? <span id="resendOtpLink" style="color: #25f4ee; cursor: pointer; font-weight: 600;">Resend</span>
+                </p>
+            </div>
+
+            <!-- Step 3: Password Reset Form (hidden initially) -->
+            <div id="newPasswordForm" style="display: none;">
+                <p style="color: #aaa; font-size: 14px; margin-bottom: 15px;">Create a new password for your account:</p>
+                <input type="password" id="newPassword" placeholder="New password" required>
+                <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+                <button id="resetPasswordBtn" class="btn-modal-login">Reset Password</button>
+            </div>
+
+            <p class="auth-link"><span id="backToLoginLink">Back to Login</span></p>
+        </div>
+    </div>
+
+    <!-- Go Live Modal -->
+    <div class="modal" id="goLiveModal" style="display: none;">
+        <div class="modal-content live-modal">
+            <button class="modal-close">&times;</button>
+            <div class="live-header">
+                <h2>Go Live</h2>
+            </div>
+            <div class="live-setup">
+                <div class="live-preview">
+                    <video id="livePreview" autoplay playsinline style="width: 100%; background: #000; border-radius: 8px;"></video>
+                </div>
+                <div class="live-settings">
+                    <div class="form-group">
+                        <label>Live Title</label>
+                        <input type="text" id="liveTitle" placeholder="What are you doing right now?" maxlength="60">
+                    </div>
+                    <div class="form-group">
+                        <label>Add a hashtag</label>
+                        <input type="text" id="liveHashtag" placeholder="#gaming #music #art" maxlength="30">
+                    </div>
+                    <button type="button" id="startLiveBtn" class="btn-live-start">Start Live Stream</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Stream Active Modal -->
+    <div class="modal" id="activeLiveModal" style="display: none;">
+        <div class="modal-content live-active-modal">
+            <div class="live-header-active">
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    <span>LIVE</span>
+                </div>
+                <div class="live-stats">
+                    <span><i class="fas fa-eye"></i> <span id="viewerCount">0</span></span>
+                    <span><i class="fas fa-heart"></i> <span id="liveHearts">0</span></span>
+                </div>
+                <button id="endLiveBtn" class="btn-end-live">End Live</button>
+            </div>
+            <div class="live-video-container">
+                <video id="activeVideo" autoplay playsinline style="width: 100%; background: #000; border-radius: 8px;"></video>
+            </div>
+            <div class="live-chat">
+                <div id="liveComments" class="live-comments"></div>
+                <div class="live-input">
+                    <input type="text" id="liveMessage" placeholder="Send a message...">
+                    <button id="sendLiveMessage"><i class="fas fa-heart" style="color: #ff0050;"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monetization Modal -->
+    <div class="modal" id="monetizeModal" style="display: none;">
+        <div class="modal-content monetize-modal">
+            <button class="modal-close">&times;</button>
+            <div class="monetize-header">
+                <h2>Monetization Dashboard</h2>
+            </div>
+            <div class="monetize-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCoins">0</div>
+                    <div class="stat-label">Total Coins Earned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalGifts">0</div>
+                    <div class="stat-label">Gifts Received</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pendingEarnings">$0.00</div>
+                    <div class="stat-label">Pending Earnings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalEarnings">$0.00</div>
+                    <div class="stat-label">Total Earnings</div>
+                </div>
+            </div>
+            <div class="monetize-section">
+                <h3>Gifts Received</h3>
+                <div class="gifts-list" id="giftsList"></div>
+            </div>
+            <div class="monetize-section">
+                <h3>Withdraw Earnings</h3>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-withdraw">Request Payout</button>
+                    <button id="openBuyCoins" class="btn-withdraw" style="background: linear-gradient(135deg,#ffd166,#ff8c42); color:#000; border:none;">Buy Coins</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buy Coins Modal -->
+    <div class="modal" id="buyCoinsModal" style="display:none;">
+        <div class="modal-content buy-modal">
+            <button class="modal-close">&times;</button>
+            <h2>Buy Coins</h2>
+            <p>Select a coin pack to purchase (demo, simulated payment)</p>
+            <div class="coin-packs">
+                <div style="display:flex; gap:8px; margin-bottom:8px;">
+                    <input id="mpesaPhone" placeholder="Enter phone (e.g. 2547...)" style="flex:1; padding:8px; border-radius:6px; background:#262626; border:1px solid #404040; color:#fff;">
+                    <button id="payWithMpesa" class="coin-pack" style="flex:0 0 auto; background:linear-gradient(135deg,#ffd166,#ff8c42);">Pay (STK)</button>
++                </div>
++                <button class="coin-pack" data-coins="100" data-price="0.99">100 Coins — $0.99</button>
++                <button class="coin-pack" data-coins="550" data-price="4.99">550 Coins — $4.99</button>
++                <button class="coin-pack" data-coins="1200" data-price="9.99">1200 Coins — $9.99</button>
++                <button class="coin-pack" data-coins="2600" data-price="19.99">2600 Coins — $19.99</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gift Picker Modal -->
+    <div class="modal" id="giftPickerModal" style="display:none;">
+        <div class="modal-content gift-modal">
+            <button class="modal-close">&times;</button>
+            <h2>Send a Gift</h2>
+            <div id="giftOptions" class="gift-options"></div>
+            <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end;">
+                <button id="cancelGift" class="btn-cancel-settings">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Owner Portal Modal -->
+    <div class="modal" id="ownerPortalModal" style="display: none;">
+        <div class="modal-content owner-portal-modal">
+            <button class="modal-close">&times;</button>
+            <div class="portal-container">
+                <!-- Sidebar Navigation -->
+                <div class="portal-sidebar">
+                    <div class="portal-header">
+                        <h2>Creator Portal</h2>
+                    </div>
+                    <div class="portal-nav">
+                        <div class="portal-nav-item active" data-tab="dashboard">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </div>
+                        <div class="portal-nav-item" data-tab="content">
+                            <i class="fas fa-video"></i>
+                            <span>My Content</span>
+                        </div>
+                        <div class="portal-nav-item" data-tab="analytics">
+                            <i class="fas fa-analytics"></i>
+                            <span>Analytics</span>
+                        </div>
+                        <div class="portal-nav-item" data-tab="audience">
+                            <i class="fas fa-users"></i>
+                            <span>Audience</span>
+                        </div>
+                        <div class="portal-nav-item" data-tab="settings">
+                            <i class="fas fa-sliders-h"></i>
+                            <span>Channel Settings</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="portal-main">
+                    <!-- Dashboard Tab -->
+                    <div class="portal-tab active" id="dashboard-tab">
+                        <h2>Dashboard Overview</h2>
+                        <div class="dashboard-grid">
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-play-circle"></i></div>
+                                <div class="card-content">
+                                    <div class="card-value" id="totalVideos">0</div>
+                                    <div class="card-label">Total Videos</div>
+                                </div>
+                            </div>
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-eye"></i></div>
+                                <div class="card-content">
+                                    <div class="card-value" id="totalViews">0</div>
+                                    <div class="card-label">Total Views</div>
+                                </div>
+                            </div>
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-heart"></i></div>
+                                <div class="card-content">
+                                    <div class="card-value" id="totalLikes">0</div>
+                                    <div class="card-label">Total Likes</div>
+                                </div>
+                            </div>
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-user-plus"></i></div>
+                                <div class="card-content">
+                                    <div class="card-value" id="totalFollowers">0</div>
+                                    <div class="card-label">Followers</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-section">
+                            <h3>Growth This Month</h3>
+                            <canvas id="growthChart" style="max-height: 300px;"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- My Content Tab -->
+                    <div class="portal-tab" id="content-tab">
+                        <div class="tab-header">
+                            <h2>My Content</h2>
+                            <button class="btn-upload-new"><i class="fas fa-plus"></i> Upload New Video</button>
+                        </div>
+                        <div class="content-filters">
+                            <button class="filter-btn active">All</button>
+                            <button class="filter-btn">Published</button>
+                            <button class="filter-btn">Drafts</button>
+                            <button class="filter-btn">Scheduled</button>
+                        </div>
+                        <div class="content-list" id="contentList"></div>
+                    </div>
+
+                    <!-- Analytics Tab -->
+                    <div class="portal-tab" id="analytics-tab">
+                        <h2>Performance Analytics</h2>
+                        <div class="analytics-grid">
+                            <div class="analytics-card">
+                                <h4>Average Engagement Rate</h4>
+                                <div class="stat-big" id="engagementRate">0%</div>
+                                <div class="stat-trend positive"><i class="fas fa-arrow-up"></i> +2.5% vs last week</div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Average Watch Time</h4>
+                                <div class="stat-big" id="avgWatchTime">0s</div>
+                                <div class="stat-trend">Per video</div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Video Completion Rate</h4>
+                                <div class="stat-big" id="completionRate">0%</div>
+                                <div class="stat-trend positive"><i class="fas fa-arrow-up"></i> Trending up</div>
+                            </div>
+                            <div class="analytics-card">
+                                <h4>Top Performing Video</h4>
+                                <div class="stat-big" id="topVideoViews">0</div>
+                                <div class="stat-trend">Views on best video</div>
+                            </div>
+                        </div>
+                        <div class="chart-section">
+                            <h3>Daily Views This Week</h3>
+                            <canvas id="viewsChart" style="max-height: 300px;"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Audience Tab -->
+                    <div class="portal-tab" id="audience-tab">
+                        <h2>Audience Insights</h2>
+                        <div class="audience-grid">
+                            <div class="audience-card">
+                                <h4>Age Distribution</h4>
+                                <div class="stat-item">
+                                    <span>13-17 years</span>
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 35%;"></div>
+                                    </div>
+                                    <span class="percent">35%</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>18-24 years</span>
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 45%;"></div>
+                                    </div>
+                                    <span class="percent">45%</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>25-34 years</span>
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 15%;"></div>
+                                    </div>
+                                    <span class="percent">15%</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>35+ years</span>
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 5%;"></div>
+                                    </div>
+                                    <span class="percent">5%</span>
+                                </div>
+                            </div>
+                            <div class="audience-card">
+                                <h4>Gender</h4>
+                                <div class="gender-stats">
+                                    <div class="gender-item">
+                                        <div class="gender-label">Female</div>
+                                        <div class="gender-bar" style="width: 60%;"></div>
+                                        <div class="gender-percent">60%</div>
+                                    </div>
+                                    <div class="gender-item">
+                                        <div class="gender-label">Male</div>
+                                        <div class="gender-bar" style="width: 40%;"></div>
+                                        <div class="gender-percent">40%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="audience-card">
+                                <h4>Top Countries</h4>
+                                <div class="country-list">
+                                    <div class="country-item">
+                                        <span>🇺🇸 United States</span>
+                                        <span class="percent">35%</span>
+                                    </div>
+                                    <div class="country-item">
+                                        <span>🇮🇳 India</span>
+                                        <span class="percent">25%</span>
+                                    </div>
+                                    <div class="country-item">
+                                        <span>🇬🇧 United Kingdom</span>
+                                        <span class="percent">15%</span>
+                                    </div>
+                                    <div class="country-item">
+                                        <span>🇧🇷 Brazil</span>
+                                        <span class="percent">10%</span>
+                                    </div>
+                                    <div class="country-item">
+                                        <span>🇲🇽 Mexico</span>
+                                        <span class="percent">15%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Channel Settings Tab -->
+                    <div class="portal-tab" id="settings-tab">
+                        <h2>Channel Settings</h2>
+                        <div class="settings-form">
+                            <div class="settings-group">
+                                <h3>Channel Information</h3>
+                                <div class="form-group">
+                                    <label>Channel Name</label>
+                                    <input type="text" value="John Doe" class="settings-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>Bio</label>
+                                    <textarea class="settings-input" rows="3" placeholder="Tell your audience about you...">Content Creator | Dance & Music Enthusiast</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Channel Category</label>
+                                    <select class="settings-input">
+                                        <option>Dance</option>
+                                        <option>Music</option>
+                                        <option>Comedy</option>
+                                        <option>Gaming</option>
+                                        <option>Beauty</option>
+                                        <option>Education</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="settings-group">
+                                <h3>Privacy & Safety</h3>
+                                <div class="toggle-item">
+                                    <span>Allow Comments</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="toggle-item">
+                                    <span>Allow Duets</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="toggle-item">
+                                    <span>Make Profile Public</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="settings-actions">
+                                <button class="btn-save-settings">Save Changes</button>
+                                <button class="btn-cancel-settings">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal" style="display: none;">
+        <div class="modal-content profile-modal">
+            <button class="modal-close">&times;</button>
+            <div class="profile-header">
+                <div id="profileAvatar" class="profile-avatar-large"></div>
+                <div class="profile-meta">
+                    <h2 id="profileName">John Doe</h2>
+                    <p id="profileHandle">@johndoe</p>
+                    <p id="profileBio">Content Creator | Love making short videos about music and lifestyle.</p>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
+                    <button id="editProfileBtn" class="btn-modal-login" style="display:none;">Edit Profile</button>
+                    <button id="profileFollowBtn" class="follow-btn">Follow</button>
+                </div>
+            </div>
+            <div class="profile-stats">
+                <div class="stat-block"><div id="profileVideosCount">0</div><div>Videos</div></div>
+                <div class="stat-block" id="openFollowers"><div id="profileFollowers">0</div><div>Followers</div></div>
+                <div class="stat-block" id="openFollowing"><div id="profileFollowing">0</div><div>Following</div></div>
+            </div>
+            <!-- Profile sub-tabs -->
+            <div class="profile-tabs" id="profileTabs">
+                <button class="profile-tab-btn active" data-section="assets">Assets</button>
+                <button class="profile-tab-btn" data-section="tools">Personal Tools</button>
+                <button class="profile-tab-btn" data-section="activity">Activity Center</button>
+                <button class="profile-tab-btn" data-section="offline">Offline Videos</button>
+                <button class="profile-tab-btn" data-section="qr">QR Code</button>
+                <button class="profile-tab-btn" data-section="business">Business Tools</button>
+                <button class="profile-tab-btn" data-section="suite">Business Suite</button>
+                <button class="profile-tab-btn" data-section="studio">TikTok Studio</button>
+                <button class="profile-tab-btn" data-section="promote">Promote</button>
+                <button class="profile-tab-btn" data-section="settings">Settings</button>
+                <button class="profile-tab-btn" data-section="privacy">Privacy</button>
+            </div>
+
+            <div class="profile-tab-sections">
+                <div class="profile-tab-section active" id="section-assets">
+                    <h4>Your Assets</h4>
+                    <p>Coins: <strong id="assetCoins">0</strong> &nbsp;|&nbsp; Gifts: <strong id="assetGifts">0</strong></p>
+                    <div style="margin-top:10px; display:flex; gap:8px; align-items:center;">
+                        <input type="file" id="assetUpload" accept="image/*,audio/*" />
+                        <button id="uploadAssetBtn" class="btn-modal-login">Upload Asset</button>
+                    </div>
+                    <div id="assetsList" style="margin-top:12px; display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:8px;"></div>
+                </div>
+
+                <div class="profile-tab-section" id="section-tools">
+                    <h4>Personal Tools</h4>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+                        <button id="toolUpload" class="btn-modal-login">Quick Upload</button>
+                        <button id="toolGoLive" class="btn-modal-login">Go Live</button>
+                        <button id="toolBuyCoins" class="btn-modal-login">Buy Coins</button>
+                        <button id="toolStudio" class="btn-modal-login">Open Studio</button>
+                    </div>
+                </div>
+
+                <div class="profile-tab-section" id="section-activity">
+                    <h4>Activity Center</h4>
+                    <div id="activityList" style="margin-top:10px; max-height:260px; overflow:auto; background:#0f0f0f; padding:10px; border-radius:8px;"></div>
+                    <div style="margin-top:8px; text-align:right;"><button id="clearActivity" class="btn-cancel-settings">Clear Activity</button></div>
+                </div>
+
+                <div class="profile-tab-section" id="section-offline">
+                    <h4>Offline Videos</h4>
+                    <div id="offlineList" style="margin-top:10px; display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px;"></div>
+                </div>
+
+                <div class="profile-tab-section" id="section-qr">
+                    <h4>QR Code</h4>
+                    <p>Generate a QR code for your profile and download it.</p>
+                    <div style="margin-top:10px;"><button id="genQrBtn" class="btn-modal-login">Generate QR</button></div>
+                    <div id="qrCanvas" style="margin-top:12px;"></div>
+                    <div id="qrDownload" style="margin-top:8px;"></div>
+                </div>
+
+                <div class="profile-tab-section" id="section-business">
+                    <h4>Business Tools</h4>
+                    <p>Access promotions, billing and partnership tools.</p>
+                    <div style="margin-top:10px; display:flex; gap:8px;">
+                        <button id="businessCampaign" class="btn-modal-login">Create Campaign</button>
+                        <button id="businessInsights" class="btn-modal-login">View Insights</button>
+                    </div>
+                </div>
+
+                <div class="profile-tab-section" id="section-suite">
+                    <h4>Business Suite</h4>
+                    <p>Manage campaigns, invoices, and billing.</p>
+                    <div id="billingInfo" style="margin-top:10px; color:#999;">No billing methods added (demo).</div>
+                </div>
+
+                <div class="profile-tab-section" id="section-studio">
+                    <h4>TikTok Studio</h4>
+                    <p>Quick editor and upload tools.</p>
+                    <div style="margin-top:10px;"><button id="studioUpload" class="btn-modal-login">Upload & Edit</button></div>
+                </div>
+
+                <div class="profile-tab-section" id="section-promote">
+                    <h4>Promote</h4>
+                    <p>Select one of your videos to promote.</p>
+                    <div id="promoteList" style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"></div>
+                </div>
+
+                <div class="profile-tab-section" id="section-settings">
+                    <h4>Settings</h4>
+                    <div style="margin-top:8px;">
+                        <label><input type="checkbox" id="settingNotifications"> Enable notifications</label><br>
+                        <label><input type="checkbox" id="settingEmailReports"> Email reports</label>
+                    </div>
+                    <div style="text-align:right; margin-top:8px;"><button id="saveSettings" class="btn-modal-login">Save</button></div>
+                </div>
+
+                <div class="profile-tab-section" id="section-privacy">
+                    <h4>Privacy</h4>
+                    <div style="margin-top:8px;">
+                        <label><input type="checkbox" id="privacyPrivateAccount"> Private account</label><br>
+                        <label><input type="checkbox" id="privacyComments"> Allow comments</label>
+                    </div>
+                    <div style="text-align:right; margin-top:8px;"><button id="savePrivacy" class="btn-modal-login">Save</button></div>
+                </div>
+            </div>
+            <h3>Recent Videos</h3>
+            <div class="profile-videos" id="profileVideos"></div>
+            <div id="profileListPanel" style="display:none; margin-top:16px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                    <h4 id="profileListTitle">List</h4>
+                    <button id="closeProfileList" class="btn-cancel-settings">Close</button>
+                </div>
+                <div id="profileListItems" style="max-height:300px; overflow:auto; background:#0f0f0f; padding:10px; border-radius:8px; border:1px solid #222;"></div>
+            </div>
+
+            <!-- Edit Profile Form (hidden) -->
+            <div id="editProfileForm" style="display:none; margin-top:16px;">
+                <h3>Edit Profile</h3>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <input type="text" id="editName" placeholder="Display name">
+                    <input type="text" id="editHandle" placeholder="Handle (without @)">
+                    <input type="text" id="editAvatarUrl" placeholder="Avatar image URL">
+                    <input type="file" id="editAvatarFile" accept="image/*">
+                    <textarea id="editBio" placeholder="Short bio" style="min-height:80px; padding:10px; background:#0f0f0f; border:1px solid #222; color:#fff;"></textarea>
+                    <div style="display:flex; gap:8px; justify-content:flex-end;">
+                        <button id="cancelEditProfile" class="btn-cancel-settings">Cancel</button>
+                        <button id="saveEditProfile" class="btn-modal-login">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Hidden file input for uploads -->
+    <input type="file" id="uploadInput" accept="video/*" style="display:none" />
+    <script src="script.js"></script>
+</body>
+</html>
